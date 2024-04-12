@@ -1,0 +1,31 @@
+{
+	"name": "UniquePageTitle",
+	"author": [
+		"Uwe Schützenmeister (idea-sketch.com)"
+	],	
+	"version": "1.0.0",
+	"url": "https://www.mediawiki.org/wiki/Extension:UniquePageTitle",
+	"descriptionmsg": "uniquepagetitle-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "parserhook",
+	"MessagesDirs": {
+		"UniquePageTitle": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"UniquePageTitleMagic": "UniquePageTitle.i18n.php"
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\UniquePageTitle\\": "src/"
+	},
+    "Hooks": {
+		"ParserFirstCallInit": "UniquePageTitleHooks"
+	},
+    "HookHandlers": {
+		"UniquePageTitleHooks": {
+			"class": "MediaWiki\\Extension\\UniquePageTitle\\UniquePageTitleHooks"
+		}
+	},	
+    "manifest_version": 1
+}
