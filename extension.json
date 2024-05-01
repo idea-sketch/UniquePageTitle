@@ -3,11 +3,14 @@
 	"author": [
 		"Uwe Schützenmeister (idea-sketch.com)"
 	],	
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"url": "https://www.mediawiki.org/wiki/Extension:UniquePageTitle",
 	"descriptionmsg": "uniquepagetitle-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "parserhook",
+    "requires": {
+		"MediaWiki": ">= 1.39.0"
+	},
 	"MessagesDirs": {
 		"UniquePageTitle": [
 			"i18n"

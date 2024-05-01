@@ -49,4 +49,5 @@ The extension should work with MediaWiki >= 1.39.0 (tested with 1.41.0). It migh
 
 # History
 
-* 2024-03-28 Initial version 1.0.0 committed.
+* 2024-05-01 Version 1.1.0 Added namespace support.
+* 2024-03-28 Version 1.0.0 Initial commit.
