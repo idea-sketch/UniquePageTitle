@@ -26,6 +26,7 @@ namespace MediaWiki\Extension\UniquePageTitle;
 
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\MediaWikiServices;
+use Title;
 
 class UniquePageTitleHooks implements ParserFirstCallInitHook
 {
@@ -47,42 +48,46 @@ class UniquePageTitleHooks implements ParserFirstCallInitHook
      * @param string $pagetitle
      * @return array
      */
-  
-    public static function renderUniquepagetitle($parser, $pagetitle = '')
+    public static function renderUniquepagetitle($parser, $pagetitle)
     {
         // If no title is specified, the function returns nothing
-        if (empty ($pagetitle)) {
+        if (empty($pagetitle)) {
             return array();
         }
 
-        // Normalize $pagetitle
-        $pagetitle = ucfirst(str_replace(' ', '_', $pagetitle));
+        // Parse the title to get namespace and title
+        $title = Title::newFromText($pagetitle);
+        $namespace = $title->getNamespace();
+
+        // Normalize $title
+        $titleText = ucfirst(str_replace(' ', '_', $title->getText()));
 
         $dbr = MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getMainLB()->getConnection(DB_PRIMARY);
 
         $count = 0;
+        $newPageTitle = $pagetitle;
 
-        // Check whether the original title (given in the parser function) exists and if increase the counter
-        if (self::checkArchived($pagetitle, $dbr)) {
+        // Check whether the original title exists and if so, append a suffix to make it unique
+        while (self::checkArchived($namespace, $titleText . ($count > 0 ? "_$count" : ''), $dbr)) {
             $count++;
-        }
-
-        // Check whether the generated title already exists and if increase the counter
-        while (self::checkArchived($pagetitle . ($count > 0 ? "_$count" : ''), $dbr)) {
-            $count++;
+            // Append count to the title and check again
+            $newPageTitle = $title->getPrefixedText() . ($count > 0 ? "_$count" : '');
         }
 
         // Return the unique page title
-        return array($pagetitle . ($count > 0 ? "_$count" : ''));
+        return array($newPageTitle);
     }
 
-    public static function checkArchived($pagetitle, $dbr)
+    public static function checkArchived($namespace, $pagetitle, $dbr)
     {
+        // Normalize pagetitle by replacing spaces with underscores
+        $pagetitle = str_replace(' ', '_', $pagetitle);
+
         // Check whether the title is present in the page-table
         $pageRes = $dbr->selectField(
             'page',
             '1',
-            array('page_title' => $pagetitle),
+            array('page_title' => $pagetitle, 'page_namespace' => $namespace),
             __METHOD__
         );
 
@@ -90,11 +95,12 @@ class UniquePageTitleHooks implements ParserFirstCallInitHook
         $archiveRes = $dbr->selectField(
             'archive',
             '1',
-            array('ar_title' => $pagetitle),
+            array('ar_title' => $pagetitle, 'ar_namespace' => $namespace),
             __METHOD__
         );
 
         // If the title is present in one of the tables, return true, otherwise false
         return $pageRes !== false || $archiveRes !== false;
     }
+
 }
